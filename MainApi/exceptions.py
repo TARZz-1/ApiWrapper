@@ -1,0 +1,2 @@
+class ApiWrapperException(Exception):
+    pass

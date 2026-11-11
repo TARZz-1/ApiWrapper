@@ -1,6 +1,7 @@
 import requests
 import requests.packages
 from typing import List, Dict
+from MainApi.exceptions import ApiWrapperException
 
 class RestAdapter:
     def __init__(self, hostname:str, api_key:str='', ver:str= 'v1', ssl_verify: bool=True):
@@ -13,7 +14,12 @@ class RestAdapter:
     def _do(self, http_method: str, endpoint: str, ep_params: Dict = None, data: Dict = None):
         full_url = self.url + endpoint
         headers = {'x-api-key': self._api_key}
-        response = requests.request(method=http_method, url=full_url, verify=self._ssl_verify, headers=headers, params=ep_params, json=data)
+        try:
+            response = requests.request(method=http_method, url=full_url, verify=self._ssl_verify, headers=headers, params=ep_params, json=data)
+        except requests.exceptions.RequestException as e:
+            raise ApiWrapperException("Failed Request") from e
+            
+            
         data_out = response.json()
         if response.status_code >= 200 and response.status_code <= 299 :
             return 
